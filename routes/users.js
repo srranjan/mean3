@@ -16,44 +16,23 @@ var Mongoclt = require('mongodb').MongoClient;//new
 var config = require('./config');
 var remoteUrl = config.remoteUrl; //No longer used for this mongodb based thingy
 
-var mykubermongo = config.mykubermongo; 
 
-var mongo = process.env.VCAP_SERVICES;
+var mongo = process.env.MONGODB_URI;
+
 var port = process.env.PORT || 3030;// Not sure what is this???
 
 var connStr = "";
 
 //Begin Get mongO URI
-if (mykubermongo) { //latest twist added for Kuber, be careful to comment the config file for kuber entry if not using kuber
-//Adding userid/password for OpenShift (hope it works also when userid/password not needed)
-	connStr = 'mongodb://rranjan:rranjan01@' + mykubermongo + ':27017';
-    //connStr = 'mongodb://' + mykubermongo + ':27017';// When not using OpenShift or a secured mongo
-	
+var mongoUrl = '';
+if (mongo) {  //Either it is Heroku or it is localhost, as simple as that.
+
+	mongoUrl = mongo;
+    
 } else {
-if (process.env.myMongoHOST) {  //Trying to make the code docker friendly also
-    var theHost = process.env.myMongoHOST;
-    connStr = 'mongodb://' + theHost + ':27017';
-} else {
-if (mongo) {               //Trying to make it CF ready, not tested though
-    var env = JSON.parse(mongo);
-    if (env['mongodb']) {
-        mongo = env['mongodb'][0]['credentials'];
-        if (mongo.url) {
-            connStr= mongo.url;
-        } else {
-            console.log("No mongo found");
-        }
-    } else {
-        connStr = 'mongodb://localhost:27017';
-    }
-} else {
-    connStr = 'mongodb://localhost:27017';
+    mongoUrl = 'mongodb://localhost:27017' + '/sampledb';;
 }
-}
-} //The brace added for kuber thingy
-//var mongoUrl = connStr + '/myStore';
-//The following for openshift version
-var mongoUrl = connStr + '/sampledb';
+
 
 //End Get mongO URI
 
